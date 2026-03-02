@@ -4,7 +4,24 @@
 #include <alloca.h>
 #include <iostream>
 #include <string>
-#include <system_error>
+#include <fstream>
+
+static std::string ShaderStringSource(const std::string& file_path){
+    std::ifstream arquivo(file_path);
+
+    if (!arquivo.is_open()){
+        throw std::runtime_error("Falha ao abrir arquivo");
+    }
+
+    std::string line;
+    std::string conteudo;
+    while (std::getline(arquivo, line)){
+        conteudo += line + "\n";
+    };
+    arquivo.close();
+
+    return  conteudo;
+};
 
 static unsigned int CompileShader(unsigned int type, const std::string& source){
     unsigned int id = glCreateShader(type);
@@ -87,10 +104,16 @@ int main() {
     // A partir daqui, qualquer configuração de atributo pertence a esse VAO.
 
     // Dados
-    float positions[6] = {
+    float positions[] = {
         -0.5f, -0.5f,
-         0.0f,  0.5f,
-         0.5f, -0.5f
+         0.5f,  -0.5f,
+         0.5f, 0.5f,
+        -0.5f,  0.5f, 
+    };
+    
+    unsigned int indices[]{
+        0, 1, 2,
+        2, 3, 0
     };
 
     /* VBO (Vertex Buffer Object): O VBO é memória alocada na GPU. 
@@ -98,20 +121,12 @@ int main() {
     unsigned int vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-    // Enviamos os dados da CPU para a GPU.
-    glBufferData(
-        GL_ARRAY_BUFFER, 
-        6 * sizeof(float), 
-        positions, 
-        GL_STATIC_DRAW // GL_STATIC_DRAW indica que os dados não vão mudar frequentemente.
-    );
+    glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), positions, GL_STATIC_DRAW ); // GL_STATIC_DRAW indica que os dados não vão mudar frequentemente.
 
     /* Atributo de vértice, Dizemos ao OpenGL:
      * "O atributo de índice 0 deve ler 2 floats por vértice"
      * Esse índice 0 precisa bater com: layout(location = 0) no vertex shader. */
     glEnableVertexAttribArray(0);
-
     glVertexAttribPointer(
         0,                    // índice do atributo no shader
         2,                     // quantidade de componentes (x, y)
@@ -121,24 +136,18 @@ int main() {
         0                   // offset inicial
     );
 
+    unsigned int ibo; // index buffer object
+    glGenBuffers(1, &ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW ); // GL_STATIC_DRAW indica que os dados não vão mudar frequentemente.
+
     // Podemos desbindar o VBO, o VAO já salvou a configuração do atributo.
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
-    std::string vertex_shader = 
-    "#version 330 core\n"
-    "layout(location = 0) in vec4 position;\n"
-    "void main(){"
-    "   gl_Position = position;"
-    "}";
-
-    std::string fragment_shader = 
-    "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main(){"
-    "   FragColor = vec4(1.0, 0.0, 0.0, 1.0);"
-    "}";
-
+    // TODO: Parsear do shader
+    std::string vertex_shader = ShaderStringSource("./shaders/vertex.glsl");
+    std::string fragment_shader = ShaderStringSource("./shaders/fragment.glsl");
     unsigned int shader = CreateShader(vertex_shader, fragment_shader);
     glUseProgram(shader);
 
@@ -150,7 +159,7 @@ int main() {
 
         // Desenha 3 vértices como um triângulo.
         // O shader ativo (não mostrado aqui) define como isso será processado.
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         // Troca o buffer invisível pelo visível.
         // OpenGL usa double buffering.
@@ -161,6 +170,7 @@ int main() {
     }
 
     // Libera recursos.
+    glDeleteProgram(shader); // deleta o shader da memória
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
