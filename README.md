@@ -1,21 +1,26 @@
-# OpenGL-experients
-Esse repositório é um conjunto de experimentos com OpenGL, focado em aprendizado de gráficos 3D e exploração de conceitos como shaders, buffers, render loop e estrutura de projetos C++ com CMake.
+# OpenGL-experiments
 
-# Dependências
+This repository is a collection of experiments with OpenGL, focused on learning 3D graphics and exploring concepts such as shaders, buffers, the render loop, and C++ project structure using CMake.
 
-Este projeto utiliza:
-- OpenGL (instalado no sistema)
-- GLEW (instalado no sistema)
-- GLFW (incluído localmente via add_subdirectory)
+# Dependencies
+
+This project uses:
+
+- OpenGL (installed on the system)
+- GLEW (installed on the system)
+- GLFW (included locally via `add_subdirectory`)
 - CMake ≥ 3.16
-- Compilador com suporte a C++17
+- A compiler with C++17 support
 
-Instalação das dependências (Linux):
-``` Bash
-    sudo apt install libglew-dev libgl1-mesa-dev
-```
-(O GLFW não precisa instalar porque está incluído no diretório lib/.)
+Dependency installation (Linux):
 
-# Compilação
+```bash
+sudo apt install libglew-dev libgl1-mesa-dev
+````
 
-Basta executar o script `build.sh` ele que é responsável pelos comandos do terminal.
+(GLFW does not need to be installed because it is included in the `lib/` directory.)
+
+# Compilation
+
+Simply run the `build.sh` script, which is responsible for executing the required terminal commands.
+
