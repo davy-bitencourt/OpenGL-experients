@@ -6,6 +6,27 @@
 #include <string>
 #include <fstream>
 
+// q porra é essa de macros???
+#define ASSERT(x) if (!(x)) __builtin_trap();
+#define GLCall(x) GLClearError();\
+    x;\
+    ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+
+static void GLClearError(){
+    while (glGetError() != GL_NO_ERROR);
+};
+
+static bool GLLogCall(const char* function, const char* file, int line){
+    if(GLenum error = glGetError()){
+        std::cout << "[ ERRO ] " << error 
+        << " [ FUNÇÃO ] " << function 
+        << "\n[ LINHA ] " << line
+        << " [ ARQUIVO ] " << file << '\n'; 
+        return false;
+    }
+    return true;
+};
+
 static std::string ShaderStringSource(const std::string& file_path){
     std::ifstream arquivo(file_path);
 
@@ -86,8 +107,9 @@ int main() {
         return -1;
     }
     
-    // Torna esse contexto o atual na thread (Todas as chamadas OpenGL abaixo afetam esse contexto)
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(window); // Torna esse contexto o atual na thread (Todas as chamadas OpenGL abaixo afetam esse contexto)
+
+    glfwSwapInterval(1); // não sei oq faz
 
     /* Inicializa GLEW: carrega os ponteiros das funções modernas do OpenGL.
      * Sem isso, só se teria acesso a versões antigas da API. */
@@ -151,18 +173,29 @@ int main() {
     unsigned int shader = CreateShader(vertex_shader, fragment_shader);
     glUseProgram(shader);
 
+    GLCall(int uniform_location = glGetUniformLocation(shader, "u_Color"));
+    ASSERT(uniform_location != -1); // se location for == -1, significa que não foi possível encontrá-la
+    GLCall(glUniform4f(uniform_location, 0.2f, 0.3f,0.8f,1.0f));
+
+    float red_value = 0.0f;
+    float increment;
     /* Loop de renderização, o programa roda até a janela ser fechada */
     while (!glfwWindowShouldClose(window)) {
 
         // Limpa o frame buffer atual. Se não limpar, pixels antigos permanecem.
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Desenha 3 vértices como um triângulo.
-        // O shader ativo (não mostrado aqui) define como isso será processado.
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        GLCall(glUniform4f(uniform_location, red_value, 0.3f,0.8f,1.0f));
+        /* GLCall é uma ferramenta de debug */
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
-        // Troca o buffer invisível pelo visível.
-        // OpenGL usa double buffering.
+        if(red_value >= 1.0f)
+            increment = -0.5f;
+        else if(red_value <= 0.0f)
+            increment = 0.15f;
+        red_value += increment;
+
+        // Troca o buffer invisível pelo visível. OpenGL usa double buffering.
         glfwSwapBuffers(window);
 
         // Processa eventos (teclado, mouse, fechar janela).
