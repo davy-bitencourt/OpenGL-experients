@@ -143,7 +143,7 @@ int main() {
     unsigned int vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), positions, GL_STATIC_DRAW ); // GL_STATIC_DRAW indica que os dados não vão mudar frequentemente.
+    glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW ); // GL_STATIC_DRAW indica que os dados não vão mudar frequentemente.
 
     /* Atributo de vértice, Dizemos ao OpenGL:
      * "O atributo de índice 0 deve ler 2 floats por vértice"
