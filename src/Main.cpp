@@ -6,26 +6,9 @@
 #include <string>
 #include <fstream>
 
-// q porra é essa de macros???
-#define ASSERT(x) if (!(x)) __builtin_trap();
-#define GLCall(x) GLClearError();\
-    x;\
-    ASSERT(GLLogCall(#x, __FILE__, __LINE__))
+#include "Render.hpp"
 
-static void GLClearError(){
-    while (glGetError() != GL_NO_ERROR);
-};
 
-static bool GLLogCall(const char* function, const char* file, int line){
-    if(GLenum error = glGetError()){
-        std::cout << "[ ERRO ] " << error 
-        << " [ FUNÇÃO ] " << function 
-        << "\n[ LINHA ] " << line
-        << " [ ARQUIVO ] " << file << '\n'; 
-        return false;
-    }
-    return true;
-};
 
 static std::string ShaderStringSource(const std::string& file_path){
     std::ifstream arquivo(file_path);
@@ -168,8 +151,8 @@ int main() {
 
 
     // TODO: Parsear do shader
-    std::string vertex_shader = ShaderStringSource("./shaders/vertex.glsl");
-    std::string fragment_shader = ShaderStringSource("./shaders/fragment.glsl");
+    std::string vertex_shader = ShaderStringSource("./res/shaders/vertex.glsl");
+    std::string fragment_shader = ShaderStringSource("./res/shaders/fragment.glsl");
     unsigned int shader = CreateShader(vertex_shader, fragment_shader);
     glUseProgram(shader);
 
