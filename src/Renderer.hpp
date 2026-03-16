@@ -6,6 +6,6 @@
     x;\
     ASSERT(GLLogCall(#x, __FILE__, __LINE__))
 
-static void GLClearError();
-
-static bool GLLogCall(const char* function, const char* file, int line);
+void GLClearError();
+    
+bool GLLogCall(const char* function, const char* file, int line);

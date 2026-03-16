@@ -1,4 +1,4 @@
-#include "Render.hpp"
+#include "Renderer.hpp"
 #include <iostream>
 
 // q porra é essa de macros???
@@ -7,11 +7,11 @@
     x;\
     ASSERT(GLLogCall(#x, __FILE__, __LINE__))
 
-static void GLClearError(){
+void GLClearError(){
     while (glGetError() != GL_NO_ERROR);
 };
 
-static bool GLLogCall(const char* function, const char* file, int line){
+bool GLLogCall(const char* function, const char* file, int line){
     if(GLenum error = glGetError()){
         std::cout << "[ ERRO ] " << error 
         << " [ FUNÇÃO ] " << function 

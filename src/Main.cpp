@@ -6,7 +6,10 @@
 #include <string>
 #include <fstream>
 
-#include "Render.hpp"
+#include "Renderer.hpp"
+
+#include "VertexBuffer.hpp"
+#include "IndexBuffer.hpp"
 
 
 
@@ -121,12 +124,8 @@ int main() {
         2, 3, 0
     };
 
-    /* VBO (Vertex Buffer Object): O VBO é memória alocada na GPU. 
-     * Aqui é onde os dados realmente ficam. */
-    unsigned int vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW ); // GL_STATIC_DRAW indica que os dados não vão mudar frequentemente.
+
+    VertexBuffer vb(positions,  4 * 2 * sizeof(float));
 
     /* Atributo de vértice, Dizemos ao OpenGL:
      * "O atributo de índice 0 deve ler 2 floats por vértice"
@@ -141,10 +140,7 @@ int main() {
         0                   // offset inicial
     );
 
-    unsigned int ibo; // index buffer object
-    glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW ); // GL_STATIC_DRAW indica que os dados não vão mudar frequentemente.
+    IndexBuffer ib(indices, 6);
 
     // Podemos desbindar o VBO, o VAO já salvou a configuração do atributo.
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -170,6 +166,8 @@ int main() {
 
         GLCall(glUniform4f(uniform_location, red_value, 0.3f,0.8f,1.0f));
         /* GLCall é uma ferramenta de debug */
+        ib.Bind();
+
         GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
         if(red_value >= 1.0f)
